@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: 'ArunTech',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
       },
