@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
-import './portfolio.css';
-import './tools.css';
+import '../portfolio.css';
+import '../tools.css';
 
 export default function ToolsPage() {
   const [mounted, setMounted] = useState(false);
