@@ -131,6 +131,8 @@ export default function PortfolioUI() {
 
 function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -141,11 +143,35 @@ function Header() {
     <header className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${scrolled ? 'bg-black/80 backdrop-blur-xl border-b border-white/5 py-4' : 'py-8'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold tracking-tighter">Arun</Link>
-        <nav className="flex items-center space-x-8 text-sm font-medium">
+        
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
           <a href="#home" className="hover:text-[#00f0ff] transition-colors">Home</a>
           <a href="#work" className="hover:text-[#00f0ff] transition-colors">Work</a>
           <Link href="/blog" className="px-4 py-2 bg-[#00f0ff]/10 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/20 transition-all">Tech Blog</Link>
           <a href="#contact" className="hover:text-[#00f0ff] transition-colors">Contact</a>
+        </nav>
+
+        {/* Mobile Toggle */}
+        <div className="md:hidden">
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-white hover:text-[#00f0ff] p-2"
+            aria-label="Toggle mobile menu"
+          >
+            <i className={`fa-solid ${isOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu Content */}
+      <div className={`md:hidden fixed inset-0 top-[70px] bg-black/95 backdrop-blur-2xl transition-all duration-300 pointer-events-none ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0'}`}>
+        <nav className="flex flex-col items-center justify-center h-full space-y-10 text-2xl font-bold">
+          <a href="#home" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Home</a>
+          <a href="#work" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Work</a>
+          <Link href="/blog" onClick={() => setIsOpen(false)} className="text-[#00f0ff]">Tech Blog</Link>
+          <a href="#contact" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Contact</a>
+          <Link href="/tools" onClick={() => setIsOpen(false)} className="text-lg opacity-50">Online Tools</Link>
         </nav>
       </div>
     </header>
