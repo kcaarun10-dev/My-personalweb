@@ -13,6 +13,18 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'ArunTech - Modern Tech Blog',
   description: 'Welcome to ArunTech, your top source for Mobile, AI, Web Dev, and Gadgets.',
+  metadataBase: new URL('https://arunregmi.com.np'),
+  manifest: '/manifest.json',
+  appleWebApp: {
+    title: 'ArunTech',
+    statusBarStyle: 'black-translucent',
+    capable: true,
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.png',
+  },
   openGraph: {
     title: 'ArunTech Tech Blog',
     description: 'Insights on Mobile, AI, Web Dev, and more.',
@@ -20,7 +32,7 @@ export const metadata: Metadata = {
     siteName: 'ArunTech',
     images: [
       {
-        url: 'https://arunregmi.com.np/og-image.jpg',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
       },
@@ -28,6 +40,12 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
+};
+
+export const viewport = {
+  themeColor: '#00f0ff',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -45,6 +63,22 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-AIzaSyAh22GQ9-e4qgOY9CSG4gSApEBmL3e8kaE"
           strategy="afterInteractive"
           crossOrigin="anonymous"
+        />
+        {/* Sitelinks Searchbox Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "url": "https://arunregmi.com.np",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://arunregmi.com.np/blog?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
         />
       </head>
       <body className={`${inter.className} min-h-screen bg-black text-gray-100 flex flex-col`}>

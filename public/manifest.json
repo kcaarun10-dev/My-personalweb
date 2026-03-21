@@ -1,0 +1,21 @@
+{
+  "name": "ArunTech",
+  "short_name": "ArunTech",
+  "description": "Premium Tech Blog by Arun Regmi",
+  "start_url": "/blog",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00f0ff",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
