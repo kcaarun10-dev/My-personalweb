@@ -1,0 +1,10 @@
+/* Manual Markdown Overrides in case Typography plugin isn't working */
+.prose h1, .prose h2, .prose h3 { font-weight: 700; margin-bottom: 0.5em; margin-top: 1.5em; color: white; }
+.prose p { margin-bottom: 1.25em; line-height: 1.7; color: #d1d5db; }
+.prose ul { list-style-type: disc; margin-left: 1.5em; margin-bottom: 1.25em; color: #d1d5db; }
+.prose ol { list-style-type: decimal; margin-left: 1.5em; margin-bottom: 1.25em; color: #d1d5db; }
+.prose a { color: #00f0ff; text-decoration: underline; text-underline-offset: 4px; }
+.prose pre { padding: 1em; border-radius: 0.5rem; overflow-x: auto; background-color: #111827; margin-bottom: 1.5em; }
+.prose code { color: #00f0ff; background-color: rgba(0,240,255,0.1); padding: 0.2em 0.4em; border-radius: 0.25rem; font-family: monospace; }
+.prose hr { border-color: #374151; margin-top: 3em; margin-bottom: 3em; }
+.prose blockquote { border-left-width: 4px; border-color: #00f0ff; padding-left: 1em; font-style: italic; color: #9ca3af; }

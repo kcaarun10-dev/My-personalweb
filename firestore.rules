@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow admins to do anything (Requires specific Google Auth Login)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'kcaarun10@gmail.com';
+    }
+
+    // 1. Posts Collection (Admin read/write, Public read)
+    match /posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 2. Comments Collection (Public read, Public create, Admin edit/delete)
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if true; // Allows anonymous visitors to leave comments
+      allow update, delete: if isAdmin(); // Only admins can moderate comments
+    }
+
+    // 3. Likes Collection (Public read, Public update via increment)
+    match /likes/{postId} {
+      allow read: if true;
+      
+      // Allow any user to create/update likes to increment the counter
+      // (For production, you could restrict 'count' modifications specifically to increment)
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+  }
+}
