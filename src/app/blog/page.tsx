@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: 'ArunTech — Latest Tech News & Smartphone Leaks',
   description: 'Your premium source for Xiaomi, Apple, and AI news. Deep-dives, reviews, and exclusive tech leaks by Arun Regmi.',
   keywords: ['Tech News', 'Xiaomi Leaks', 'iPhone Rumors', 'AI News', 'Smartphone Reviews'],
+  alternates: {
+    canonical: 'https://arunregmi.com.np/blog',
+  },
 };
 
 async function getPosts() {

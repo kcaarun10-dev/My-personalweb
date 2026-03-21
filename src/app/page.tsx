@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: 'Arun Regmi — Web Developer & Content Creator',
   description: 'Building fast, modern, and accessible web experiences. Expert in Next.js, Firebase, and UI/UX design. Founder of ArunTech.',
   keywords: ['Arun Regmi', 'Web Developer', 'Portfolio', 'Frontend Developer', 'Nepal', 'Next.js Expert', 'Firebase Expert'],
+  alternates: {
+    canonical: 'https://arunregmi.com.np',
+  },
   openGraph: {
     title: 'Arun Regmi — Web Developer',
     description: 'Expert Web Development and Tech Insights.',
