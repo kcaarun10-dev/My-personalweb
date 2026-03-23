@@ -34,9 +34,5 @@ This project is configured for seamless deployment on **Vercel** or **GitHub Pag
 3. **Deploy**:
    Push to the `main` branch of your GitHub repository at `kcaarun10-dev/My-personalweb`.
 
-## 📈 Monetization Strategy
-
-The site uses a `Universal Ad Unit` component. Replace the slot IDs in `src/components/AdUnit.tsx` with your real publisher ID (`ca-pub-AIzaSyAh22GQ9-e4qgOY9CSG4gSApEBmL3e8kaE`) to start earning revenue.
-
 ---
 © 2026 Arun Regmi. Dedicated to tech excellence.
