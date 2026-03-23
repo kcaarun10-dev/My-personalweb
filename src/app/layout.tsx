@@ -11,8 +11,12 @@ import NavRenderer from '@/components/NavRenderer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ArunTech - Modern Tech Blog',
-  description: 'Welcome to ArunTech, your top source for Mobile, AI, Web Dev, and Gadgets.',
+  title: 'Arun Regmi | Full-Stack Web Developer & Tech Creator',
+  description: 'Welcome to ArunTech! Portfolio and tech blog of Arun Regmi. Specializing in modern web development, React, Next.js, AI, and mobile technology insights.',
+  keywords: ['Arun Regmi', 'ArunTech', 'Web Developer Nepal', 'Full Stack Developer', 'React Developer', 'Next.js Expert', 'Tech Blog', 'Mobile Reviews', 'AI Engineering'],
+  authors: [{ name: 'Arun Regmi', url: 'https://arunregmi.com.np' }],
+  creator: 'Arun Regmi',
+  publisher: 'ArunTech Media',
   metadataBase: new URL('https://arunregmi.com.np'),
   manifest: '/manifest.json',
   appleWebApp: {
@@ -21,13 +25,17 @@ export const metadata: Metadata = {
     capable: true,
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    apple: [
+      { url: '/favicon.png', sizes: '180x180', type: 'image/png' }
+    ],
   },
   openGraph: {
-    title: 'ArunTech Tech Blog',
-    description: 'Insights on Mobile, AI, Web Dev, and more.',
+    title: 'Arun Regmi | Web Developer & Tech Creator',
+    description: 'Portfolio and tech blog of Arun Regmi. Deep dives into Web Dev, AI, and Tech.',
     url: 'https://arunregmi.com.np',
     siteName: 'ArunTech',
     images: [
@@ -35,6 +43,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
+        alt: 'Arun Regmi Portfolio & Tech Blog'
       },
     ],
     locale: 'en_US',
@@ -54,16 +63,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         {/* Google AdSense Script - Replace with real publisher ID */}
-        <Script
-          id="adsense-id"
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-AIzaSyAh22GQ9-e4qgOY9CSG4gSApEBmL3e8kaE"
-          strategy="afterInteractive"
           crossOrigin="anonymous"
-        />
+        ></script>
+        {/* Favicon / Branding */}
+        <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        {/* FontAwesome for Icons */}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         {/* Sitelinks Searchbox Schema */}
         <script
           type="application/ld+json"
@@ -82,13 +94,13 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} min-h-screen bg-black text-gray-100 flex flex-col`}>
-        <NavRenderer 
+        <NavRenderer
           navbar={<Navbar />}
           footer={<Footer />}
         >
           {/* AdSlot 1: Global Header Leaderboard (728x90) */}
           <div className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-             <AdUnit slot="HEADER_AD_SLOT_ID" /> 
+            <AdUnit format="CPM-Banner" slot="d0422be77d40115e69689a2427797763" />
           </div>
 
           <main className="flex-grow px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
@@ -97,7 +109,7 @@ export default function RootLayout({
 
           {/* AdSlot 4: Global Footer Ad (728x90) */}
           <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-white/5 pt-12">
-             <AdUnit slot="FOOTER_AD_SLOT_ID" /> 
+            <AdUnit slot="FOOTER_AD_SLOT_ID" />
           </div>
         </NavRenderer>
       </body>

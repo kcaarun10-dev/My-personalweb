@@ -24,9 +24,16 @@ service cloud.firestore {
     match /likes/{postId} {
       allow read: if true;
       
-      // Allow any user to create/update likes to increment the counter
-      // (For production, you could restrict 'count' modifications specifically to increment)
-      allow create, update: if true;
+      // Allow first like creation (must exactly set count to 1)
+      allow create: if true 
+                    && request.resource.data.keys().hasOnly(['count']) 
+                    && request.resource.data.count == 1;
+
+      // Allow future likes to increment the counter by exactly 1
+      allow update: if true 
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count'])
+                    && request.resource.data.count == resource.data.count + 1;
+                    
       allow delete: if isAdmin();
     }
   }

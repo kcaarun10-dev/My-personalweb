@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from 'react';
+import Script from 'next/script';
 
-type AdFormat = 'PopunderBest' | 'Native Banner' | 'Banner' | 'Smartlink' | 'Social Bar' | 'auto' | 'fluid' | 'rectangle';
+type AdFormat = 'PopunderBest' | 'Native Banner' | 'Banner' | 'Smartlink' | 'Social Bar' | 'auto' | 'fluid' | 'rectangle' | 'CPM-Banner';
 
 type AdUnitProps = {
   slot?: string;
@@ -31,18 +32,23 @@ export default function AdUnit({ slot = '', format = 'auto', className = '', sty
           adsbygoogle.push({});
         } catch (e: any) {
           if (e.message && !e.message.includes('already have ads')) {
-             console.error('AdSense push error:', e);
+            console.error('AdSense push error:', e);
           }
         }
       };
       const timeout = setTimeout(pushAd, 200);
       return () => clearTimeout(timeout);
     }
-    
+
     // Logic for High-Yield Script Injections (Social Bar / Popunder)
-    if (['PopunderBest', 'Social Bar'].includes(format)) {
-        console.info(`Ad Network: Injecting ${format} script with slot ${slot}...`);
-        // For actual implementation, you would append a <script> tag to the body here
+    if (format === 'PopunderBest' || format === 'Social Bar') {
+      if (slot) {
+        const script = document.createElement('script');
+        script.src = `https://pl28954132.profitablecpmratenetwork.com/${slot}/invoke.js`;
+        script.async = true;
+        script.dataset.cfasync = "false";
+        document.body.appendChild(script);
+      }
     }
   }, [slot, format]);
 
@@ -61,16 +67,28 @@ export default function AdUnit({ slot = '', format = 'auto', className = '', sty
 
   // 1. SMARTLINK Implementation (Direct Link Wrapper)
   if (format === 'Smartlink') {
-      return (
-          <a href={link} target="_blank" rel="noopener noreferrer" className={`block w-full py-5 px-6 bg-gradient-to-r from-[#00f0ff]/20 to-blue-600/20 border border-[#00f0ff]/50 rounded-2xl text-center text-white font-bold hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all ${className}`}>
-               🚀 SPECIAL OFFER: View Recommended Content &rarr;
-          </a>
-      );
+    return (
+      <a href={link} target="_blank" rel="noopener noreferrer" className={`block w-full py-5 px-6 bg-gradient-to-r from-[#00f0ff]/20 to-blue-600/20 border border-[#00f0ff]/50 rounded-2xl text-center text-white font-bold hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all ${className}`}>
+        🚀 SPECIAL OFFER: View Recommended Content &rarr;
+      </a>
+    );
   }
 
-  // 2. SOCIAL BAR / POPUNDER (Invisible containers for script injection)
-  if (format === 'PopunderBest' || format === 'Social Bar') {
-      return <div id={`ad-${format.replace(' ', '-')}-${slot}`} className="hidden opacity-0 invisible h-0 w-0" />;
+  // 2. SOCIAL BAR / POPUNDER / CPM-Banner
+  if (format === 'PopunderBest' || format === 'Social Bar' || format === 'CPM-Banner') {
+    if (format === 'CPM-Banner') {
+      return (
+        <div className={`my-8 flex justify-center ${className}`}>
+          <Script
+            src={`https://pl28954132.profitablecpmratenetwork.com/${slot}/invoke.js`}
+            async
+            data-cfasync="false"
+          />
+          <div id={`container-${slot}`}></div>
+        </div>
+      );
+    }
+    return <div id={`ad-${format.replace(' ', '-')}-${slot}`} className="hidden opacity-0 invisible h-0 w-0" />;
   }
 
   // 3. STANDARD BANNERS (AdSense/Direct)

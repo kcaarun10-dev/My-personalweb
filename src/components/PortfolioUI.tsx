@@ -5,10 +5,10 @@ import Link from 'next/link';
 
 export default function PortfolioUI() {
   const [typedText, setTypedText] = useState("I'm a Web Developer");
-  
+
   // Typing Effect
   useEffect(() => {
-    const words = ["Web Developer", "UI/UX Designer", "Freelancer"];
+    const words = ["Web Developer", "UI/UX Designer", "Content Creator", "Tech Entrepreneur"];
     let wordIndex = 0;
     let letterIndex = 0;
     let isDeleting = false;
@@ -16,21 +16,34 @@ export default function PortfolioUI() {
 
     function type() {
       const currentWord = words[wordIndex];
-      if (isDeleting) {
-        setTypedText(`I'm a ${currentWord.substring(0, letterIndex - 1)}`);
-        letterIndex--;
-        if (letterIndex === 0) {
-          isDeleting = false;
-          wordIndex = (wordIndex + 1) % words.length;
-        }
-      } else {
-        setTypedText(`I'm a ${currentWord.substring(0, letterIndex + 1)}`);
-        letterIndex++;
-        if (letterIndex === currentWord.length) isDeleting = true;
+      const typingSpeed = isDeleting ? 50 : 150;
+
+      if (!isDeleting && letterIndex === currentWord.length) {
+        // Pause at the end of word
+        timeoutId = setTimeout(() => {
+          isDeleting = true;
+          type();
+        }, 2000);
+        return;
       }
-      timeoutId = setTimeout(type, isDeleting ? 100 : 200);
+
+      if (isDeleting && letterIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        timeoutId = setTimeout(type, 500);
+        return;
+      }
+
+      const nextText = isDeleting
+        ? currentWord.substring(0, letterIndex - 1)
+        : currentWord.substring(0, letterIndex + 1);
+
+      setTypedText(`I'm a ${nextText}`);
+      letterIndex = isDeleting ? letterIndex - 1 : letterIndex + 1;
+
+      timeoutId = setTimeout(type, typingSpeed);
     }
-    
+
     type();
     return () => clearTimeout(timeoutId);
   }, []);
@@ -64,116 +77,66 @@ export default function PortfolioUI() {
 
   return (
     <div className="portfolio-wrapper">
-      <Header />
-      
       <main>
         {/* Gallery / Hero */}
-        <section className="home" id="home">
+        <section className="home min-h-[90vh] flex items-center pt-20" id="home">
           <div className="home-content">
-            <h1 className="text-[#00f0ff] font-extrabold mb-4">Arun Regmi</h1>
-            <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Building web experiences that matter.</h2>
-            <h3 className="typing-text text-2xl md:text-3xl text-gray-400 font-mono mb-8 h-8">{typedText}</h3>
-            <p className="max-w-xl text-lg text-gray-400 mb-10 leading-relaxed">I design and develop fast, modern, and accessible websites and useful online tools. I focus on performance, simplicity, and delightful UX.</p>
-            <div className="flex gap-4 flex-wrap">
-              <a href="#contact" className="px-8 py-3 bg-[#00f0ff] text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all">Hire Me</a>
-              <Link href="/blog" className="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all">View Blog</Link>
+            <div className="flex items-center gap-3 mb-4 animate-fade-in">
+              <img src="/favicon.png" alt="ArunTech" className="h-8 w-8 object-contain" />
+              <h1 className="text-[#00f0ff] font-extrabold uppercase tracking-[0.2em] text-sm">Arun Regmi</h1>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-extrabold mb-8 leading-tight tracking-tighter">Building web experiences that <span className="text-[#00f0ff] italic">matter</span>.</h2>
+            <h3 className="typing-text text-2xl md:text-4xl text-white/70 font-mono mb-10 h-12">{typedText}<span className="animate-pulse">|</span></h3>
+            <p className="max-w-xl text-lg text-gray-400 mb-12 leading-relaxed opacity-80 font-medium">I design and develop fast, modern, and accessible websites and useful online tools. I focus on performance, simplicity, and delightful UX.</p>
+            <div className="flex gap-6 flex-wrap">
+              <a href="#contact" className="px-10 py-4 bg-[#00f0ff] text-black font-black rounded-2xl hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] hover:scale-105 transition-all">Hire Me Now</a>
+              <Link href="/blog" className="px-10 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 hover:border-white/20 transition-all">Explore Articles</Link>
             </div>
           </div>
-          <div className="home-img mt-12 md:mt-0">
-             <div className="relative w-64 h-64 md:w-96 md:h-96 rounded-3xl overflow-hidden glass border border-white/10 shadow-3xl">
-                <img src="/main.jpg" alt="Arun Regmi" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-700" />
-             </div>
+          <div className="home-img mt-12 md:mt-0 flex-shrink-0">
+            <div className="relative w-72 h-72 md:w-[450px] md:h-[450px] rounded-[40px] overflow-hidden glass border border-white/10 shadow-3xl transform rotate-3 hover:rotate-0 transition-all duration-700">
+              <img src="/main.jpg" alt="Arun Regmi" className="object-cover w-full h-full grayscale hover:grayscale-0 transition-all duration-1000 scale-110 hover:scale-100" />
+            </div>
           </div>
         </section>
 
         {/* Selected Work */}
-        <section id="work" className="py-32">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">Selected <span className="text-[#00f0ff]">Work</span></h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="project-card group">
-              <div className="aspect-video bg-white/5 rounded-3xl mb-6 relative overflow-hidden boarder border-white/5 flex items-center justify-center">
-                 <i className="fa-solid fa-tools text-6xl text-white/10 group-hover:scale-110 transition-transform"></i>
-              </div>
-              <h3 className="text-2xl font-bold mb-3">Online Tools Suite</h3>
-              <p className="text-gray-400 mb-6">17+ high-performance utility tools built with vanilla JS and optimized for speed.</p>
-              <Link href="/tools" className="text-[#00f0ff] font-bold hover:underline">Explore Tools &rarr;</Link>
+        <section id="work" className="py-40">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 text-center md:text-left">
+            <div className="max-w-xl">
+              <h2 className="text-5xl md:text-6xl font-black mb-4 tracking-tighter">Selected <span className="text-[#00f0ff]">Work</span></h2>
+              <p className="text-gray-500">A showcase of technical depth and modern web engineering.</p>
             </div>
-            <div className="project-card group">
-              <div className="aspect-video bg-[#00f0ff]/5 rounded-3xl mb-6 relative overflow-hidden boarder border-[#00f0ff]/10 flex items-center justify-center">
-                 <i className="fa-solid fa-newspaper text-6xl text-[#00f0ff]/20 group-hover:scale-110 transition-transform"></i>
+          </div>
+
+          <div className="grid grid-cols-1 gap-16">
+            <div className="project-card group max-w-4xl mx-auto w-full">
+              <div className="aspect-video bg-[#00f0ff]/10 rounded-[40px] mb-8 relative overflow-hidden border border-[#00f0ff]/30 flex items-center justify-center p-12 transition-all duration-500 group-hover:border-[#00f0ff]/60 group-hover:bg-[#00f0ff]/20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#00f0ff]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                <i className="fa-solid fa-newspaper text-9xl md:text-[13rem] text-[#00f0ff] opacity-40 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110 drop-shadow-[0_0_50px_rgba(0,240,255,0.6)]"></i>
               </div>
-              <h3 className="text-2xl font-bold mb-3">ArunTech Blog</h3>
-              <p className="text-gray-400 mb-6">A high-traffic tech blog with Google Sign-In, CMS, and AdSense integration.</p>
-              <Link href="/blog" className="text-[#00f0ff] font-bold hover:underline">Read Blog &rarr;</Link>
+              <div className="text-center">
+                <h3 className="text-4xl font-bold mb-6 tracking-tight">ArunTech Blog & Media</h3>
+                <p className="text-gray-400 mb-10 leading-relaxed text-xl max-w-2xl mx-auto">A full-featured tech media platform built with Next.js and Firebase. Optimized for Core Web Vitals with seamless AdSense integration and high-performance rendering.</p>
+                <Link href="/blog" className="inline-flex items-center px-12 py-5 bg-[#00f0ff] text-black rounded-2xl font-black hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] hover:scale-105 transition-all">Explore Articles &rarr;</Link>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 border-t border-white/5">
-        <div className="max-w-2xl mx-auto text-center">
-           <h2 className="text-3xl font-bold mb-6">Let's build something amazing.</h2>
-           <p className="text-gray-400 mb-10">Have a project in mind or just want to chat tech? Reach out below.</p>
-           <div className="flex justify-center gap-6">
-              <a href="mailto:kcaarun10@gmail.com" className="text-2xl hover:text-[#00f0ff]"><i className="fa-solid fa-envelope"></i></a>
-              <a href="https://wa.link/0mmt5c" className="text-2xl hover:text-green-500"><i className="fa-brands fa-whatsapp"></i></a>
-           </div>
+      <section id="contact" className="py-32 border-t border-white/5 bg-white/[0.02]">
+        <div className="max-w-3xl mx-auto text-center px-6">
+          <h2 className="text-4xl md:text-5xl font-black mb-8 tracking-tighter">Let's build something <span className="text-[#00f0ff]">amazing</span>.</h2>
+          <p className="text-xl text-gray-400 mb-12 leading-relaxed">Have a project in mind or just want to chat tech? I'm always open to new opportunities and collaborations.</p>
+          <div className="flex justify-center gap-10">
+            <a href="mailto:kcaarun10@gmail.com" className="text-4xl hover:text-[#00f0ff] hover:scale-125 transition-all"><i className="fa-solid fa-envelope"></i></a>
+            <a href="https://wa.me/9779810975653" className="text-4xl hover:text-green-500 hover:scale-125 transition-all"><i className="fa-brands fa-whatsapp"></i></a>
+            <a href="https://instagram.com/regmi.rays10" className="text-4xl hover:text-pink-500 hover:scale-125 transition-all"><i className="fa-brands fa-instagram"></i></a>
+          </div>
         </div>
       </section>
-
-      <footer className="py-12 border-t border-white/5 text-center text-gray-500 text-sm">
-         <p>&copy; {new Date().getFullYear()} Arun Regmi. All Rights Reserved.</p>
-      </footer>
     </div>
-  );
-}
-
-function Header() {
-  const [scrolled, setScrolled] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <header className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${scrolled ? 'bg-black/80 backdrop-blur-xl border-b border-white/5 py-4' : 'py-8'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold tracking-tighter">Arun</Link>
-        
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
-          <a href="#home" className="hover:text-[#00f0ff] transition-colors">Home</a>
-          <a href="#work" className="hover:text-[#00f0ff] transition-colors">Work</a>
-          <Link href="/blog" className="px-4 py-2 bg-[#00f0ff]/10 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/20 transition-all">Tech Blog</Link>
-          <a href="#contact" className="hover:text-[#00f0ff] transition-colors">Contact</a>
-        </nav>
-
-        {/* Mobile Toggle */}
-        <div className="md:hidden">
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-white hover:text-[#00f0ff] p-2"
-            aria-label="Toggle mobile menu"
-          >
-            <i className={`fa-solid ${isOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu Content */}
-      <div className={`md:hidden fixed inset-0 top-[70px] bg-black/95 backdrop-blur-2xl transition-all duration-300 pointer-events-none ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0'}`}>
-        <nav className="flex flex-col items-center justify-center h-full space-y-10 text-2xl font-bold">
-          <a href="#home" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Home</a>
-          <a href="#work" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Work</a>
-          <Link href="/blog" onClick={() => setIsOpen(false)} className="text-[#00f0ff]">Tech Blog</Link>
-          <a href="#contact" onClick={() => setIsOpen(false)} className="hover:text-[#00f0ff]">Contact</a>
-          <Link href="/tools" onClick={() => setIsOpen(false)} className="text-lg opacity-50">Online Tools</Link>
-        </nav>
-      </div>
-    </header>
   );
 }

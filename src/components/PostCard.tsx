@@ -7,17 +7,18 @@ export default function PostCard({ post, featured = false }: { post: Post; featu
     <div className={`glass rounded-xl overflow-hidden shadow-lg transition-transform hover:-translate-y-1 ${featured ? 'md:col-span-3 flex flex-col md:flex-row' : 'flex flex-col'}`}>
       <div className={`relative ${featured ? 'md:w-2/3 h-64 md:h-96' : 'w-full h-48'}`}>
         {post.thumbnail ? (
-           <Image
-             src={post.thumbnail}
-             alt={post.title}
-             fill
-             className="object-cover"
-             sizes={featured ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-           />
+          <Image
+            src={post.thumbnail}
+            alt={post.title}
+            fill
+            className="object-cover"
+            sizes={featured ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
+            priority={featured}
+          />
         ) : (
-           <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500">
-             No Image
-           </div>
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500">
+            No Image
+          </div>
         )}
       </div>
       <div className={`p-6 flex flex-col justify-center ${featured ? 'md:w-1/3' : 'w-full'}`}>

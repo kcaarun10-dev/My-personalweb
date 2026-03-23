@@ -38,7 +38,7 @@ async function getPostData(slug: string): Promise<Post | null> {
   const postsRef = collection(db, 'posts');
   const q = query(postsRef, where('slug', '==', slug));
   const snapshot = await getDocs(q);
-  
+
   if (snapshot.empty) return null;
   return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Post;
 }
@@ -46,7 +46,7 @@ async function getPostData(slug: string): Promise<Post | null> {
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const post = await getPostData(resolvedParams.slug);
-  
+
   if (!post) {
     return notFound();
   }
@@ -68,7 +68,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
       {post.thumbnail && (
         <div className="relative w-full h-[400px] mb-12 rounded-2xl overflow-hidden glass shadow-2xl">
-          <Image src={post.thumbnail} alt={post.title} fill className="object-cover" />
+          <Image src={post.thumbnail} alt={post.title} fill className="object-cover" priority />
         </div>
       )}
 
@@ -91,9 +91,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       />
 
       <div className="prose prose-invert prose-lg max-w-none prose-a:text-[#00f0ff] prose-img:rounded-xl">
-        <ReactMarkdown 
-           remarkPlugins={[remarkGfm]}
-           rehypePlugins={[rehypeHighlight]}
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
         >
           {post.content}
         </ReactMarkdown>
@@ -104,10 +104,10 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
       <hr className="my-12 border-gray-800" />
       <div className="flex flex-col space-y-8">
-         <div className="flex justify-start">
-            <LikeButton postId={post.id as string} />
-         </div>
-         <Comments postId={post.id as string} />
+        <div className="flex justify-start">
+          <LikeButton postId={post.id as string} />
+        </div>
+        <Comments postId={post.id as string} />
       </div>
     </article>
   );

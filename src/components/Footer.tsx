@@ -14,8 +14,9 @@ export default function Footer() {
             <span className="text-gray-400 text-sm">&copy; {new Date().getFullYear()} ArunTech. All rights reserved.</span>
           </div>
           <div className="mt-8 md:mt-0 md:order-1">
-            <Link href="/" className="text-xl font-bold tracking-tighter">
-              Arun<span className="text-[#00f0ff]">Tech</span>
+            <Link href="/" className="flex items-center">
+              <img src="/logo.png" alt="ArunTech Logo" className="h-8 md:h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-all" />
+              <span className="ml-3 text-lg font-bold tracking-tighter text-gray-400">ArunTech Blog & Media</span>
             </Link>
           </div>
         </div>

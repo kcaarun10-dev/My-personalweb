@@ -15,27 +15,40 @@ export default function Comments({ postId }: { postId: string }) {
 
   useEffect(() => {
     if (!postId || !db) return;
-    // Set up a real-time listener for the comments collection
+    // Simple query to avoid Firebase Index requirements
     const q = query(
-      collection(db, 'comments'), 
-      where('postId', '==', postId), 
-      orderBy('createdAt', 'desc')
+      collection(db, 'comments'),
+      where('postId', '==', postId)
     );
-    
+
     const unsubscribe = onSnapshot(q, (snap) => {
-      const fetched: Comment[] = snap.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
+      const fetched: Comment[] = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
       } as Comment));
-      setComments(fetched);
+
+      // Sort them locally by newest first
+      const sortedComments = fetched.sort((a, b) => b.createdAt - a.createdAt);
+      setComments(sortedComments);
     });
-    
+
     return () => unsubscribe();
   }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !name.trim() || !db) return;
+    if (!name.trim()) {
+      alert("Please enter a Display Name.");
+      return;
+    }
+    if (!newComment.trim()) {
+      alert("Please enter a comment.");
+      return;
+    }
+    if (!db) {
+      alert("Database connection error.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -46,8 +59,10 @@ export default function Comments({ postId }: { postId: string }) {
         createdAt: Date.now()
       });
       setNewComment("");
-    } catch (err) {
+      // Removed alert here so it feels seamless, onSnapshot handles the UI update
+    } catch (err: any) {
       console.error("Error adding comment: ", err);
+      alert("Failed to post comment. Ensure your Firebase Rules allow creates.");
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +76,7 @@ export default function Comments({ postId }: { postId: string }) {
           {comments.length} Thoughts
         </span>
       </div>
-      
+
       {/* Premium Form */}
       <form onSubmit={handleSubmit} className="mb-14 relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-[#00f0ff] to-[#006aff] rounded-2xl blur opacity-15 group-hover:opacity-20 transition-opacity"></div>
@@ -69,10 +84,10 @@ export default function Comments({ postId }: { postId: string }) {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 relative">
               <FaUserCircle className="absolute left-3 top-3.5 text-gray-500 text-xl" />
-              <input 
-                type="text" 
-                placeholder="Display Name" 
-                value={name} 
+              <input
+                type="text"
+                placeholder="Display Name"
+                value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] text-white transition-all placeholder:text-gray-600"
                 required
@@ -80,7 +95,7 @@ export default function Comments({ postId }: { postId: string }) {
             </div>
           </div>
           <div className="relative">
-            <textarea 
+            <textarea
               placeholder="Join the technical conversation... Share your take on this article."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
@@ -89,8 +104,8 @@ export default function Comments({ postId }: { postId: string }) {
               required
             />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
             className="group/btn flex items-center justify-center space-x-3 bg-white text-black font-extrabold rounded-xl px-8 py-4 hover:bg-[#00f0ff] hover:text-black transition-all transform hover:scale-[1.02] disabled:opacity-50 shadow-xl"
           >
@@ -104,34 +119,34 @@ export default function Comments({ postId }: { postId: string }) {
       <div className="space-y-8 pb-20">
         {comments.length === 0 ? (
           <div className="text-center py-20 glass rounded-2xl border border-dashed border-white/10">
-             <p className="text-gray-500 italic text-xl">Be the first to spark a discussion!</p>
+            <p className="text-gray-500 italic text-xl">Be the first to spark a discussion!</p>
           </div>
         ) : (
           comments.map(comment => (
             <div key={comment.id} className="group relative">
-               <div className="flex items-start space-x-5">
-                  <div className="flex-shrink-0">
-                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0a0a0a] to-[#222] border border-white/5 flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:border-[#00f0ff]/30 transition-all">
-                        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">
-                           {comment.authorName.charAt(0).toUpperCase()}
-                        </span>
-                        <div className="absolute inset-0 bg-[#00f0ff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                     </div>
+              <div className="flex items-start space-x-5">
+                <div className="flex-shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0a0a0a] to-[#222] border border-white/5 flex items-center justify-center shadow-2xl relative overflow-hidden group-hover:border-[#00f0ff]/30 transition-all">
+                    <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">
+                      {comment.authorName.charAt(0).toUpperCase()}
+                    </span>
+                    <div className="absolute inset-0 bg-[#00f0ff]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
-                  <div className="flex-1 space-y-2">
-                     <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-lg text-white group-hover:text-[#00f0ff] transition-colors">{comment.authorName}</h4>
-                        <time className="text-xs font-mono text-gray-600 uppercase tracking-widest">{new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
-                     </div>
-                     <div className="bg-white/5 border border-white/5 rounded-2xl p-6 text-gray-300 leading-relaxed shadow-sm group-hover:shadow-md group-hover:bg-white/[0.07] transition-all">
-                        {comment.text}
-                     </div>
-                     <div className="flex items-center space-x-6 text-xs font-bold text-gray-600 pl-2">
-                        <button className="hover:text-[#00f0ff] uppercase tracking-tighter">Helpful</button>
-                        <button className="hover:text-[#00f0ff] uppercase tracking-tighter">Report</button>
-                     </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-lg text-white group-hover:text-[#00f0ff] transition-colors">{comment.authorName}</h4>
+                    <time className="text-xs font-mono text-gray-600 uppercase tracking-widest">{new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
                   </div>
-               </div>
+                  <div className="bg-white/5 border border-white/5 rounded-2xl p-6 text-gray-300 leading-relaxed shadow-sm group-hover:shadow-md group-hover:bg-white/[0.07] transition-all">
+                    {comment.text}
+                  </div>
+                  <div className="flex items-center space-x-6 text-xs font-bold text-gray-600 pl-2">
+                    <button className="hover:text-[#00f0ff] uppercase tracking-tighter">Helpful</button>
+                    <button className="hover:text-[#00f0ff] uppercase tracking-tighter">Report</button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))
         )}
