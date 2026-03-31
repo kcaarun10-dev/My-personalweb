@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@next/swc-win32-x64-msvc": "^16.2.1",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
@@ -37,6 +36,7 @@
   },
   "optionalDependencies": {
     "@next/swc-linux-x64-gnu": "^16.2.1",
-    "@next/swc-linux-x64-musl": "^16.2.1"
+    "@next/swc-linux-x64-musl": "^16.2.1",
+    "@next/swc-win32-x64-msvc": "^16.2.1"
   }
 }
