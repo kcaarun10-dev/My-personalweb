@@ -4,14 +4,19 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { FaTachometerAlt, FaEdit, FaPlus, FaSignOutAlt } from 'react-icons/fa';
+import { FaTachometerAlt, FaEdit, FaPlus, FaSignOutAlt, FaListUl, FaExclamationTriangle, FaUser, FaCog } from 'react-icons/fa';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
 
   const links = [
     { name: 'Dashboard', href: '/admin', icon: <FaTachometerAlt /> },
-    { name: 'Create Post', href: '/admin/create', icon: <FaPlus /> },
+    { name: 'New Post', href: '/admin/create', icon: <FaPlus /> },
+    { name: 'All Posts', href: '/admin/posts', icon: <FaEdit /> },
+    { name: 'Categories', href: '/admin/categories', icon: <FaListUl /> },
+    { name: 'Reports', href: '/admin/reports', icon: <FaExclamationTriangle /> },
+    { name: 'Profile', href: '/admin/profile', icon: <FaUser /> },
+    { name: 'Settings', href: '/admin/settings', icon: <FaCog /> },
   ];
 
   return (

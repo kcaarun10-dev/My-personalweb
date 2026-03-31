@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import AdUnit from '@/components/AdUnit';
 import Script from 'next/script';
 import NavRenderer from '@/components/NavRenderer';
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,10 +66,10 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
-        {/* Google AdSense Script - Replace with real publisher ID */}
+        {/* Google AdSense Script - Placeholder for real publisher ID */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-AIzaSyAh22GQ9-e4qgOY9CSG4gSApEBmL3e8kaE"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID"
           crossOrigin="anonymous"
         ></script>
         {/* Favicon / Branding */}
@@ -94,6 +95,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} min-h-screen bg-black text-gray-100 flex flex-col`}>
+        <NextTopLoader color="#00f0ff" showSpinner={false} />
         <NavRenderer
           navbar={<Navbar />}
           footer={<Footer />}

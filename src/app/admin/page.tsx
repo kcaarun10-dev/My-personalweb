@@ -3,21 +3,23 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { Post } from '@/types';
 import Link from 'next/link';
 import AdminSidebar from '@/components/AdminSidebar';
 import { FcGoogle } from 'react-icons/fc';
+import { FaFileAlt, FaComment, FaFolder, FaEye, FaPlus, FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: User | null) => {
       if (currentUser && currentUser.email !== 'kcaarun10@gmail.com') {
         await signOut(auth);
         setUser(null);
@@ -25,23 +27,28 @@ export default function AdminDashboard() {
       }
       setUser(currentUser);
       if (currentUser) {
-        fetchPosts();
-        fetchComments();
+        fetchData();
+      } else {
+        setLoading(false);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  const fetchPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, 'posts'));
-    const fetchedPosts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
-    setPosts(fetchedPosts.sort((a, b) => b.createdAt - a.createdAt));
-  };
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const postsSnap = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc')));
+      const fetchedPosts = postsSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Post));
+      setPosts(fetchedPosts);
 
-  const fetchComments = async () => {
-    const querySnapshot = await getDocs(collection(db, 'comments'));
-    const fetchedComments = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
-    setComments(fetchedComments.sort((a: any, b: any) => b.createdAt - a.createdAt));
+      const commentsSnap = await getDocs(collection(db, 'comments'));
+      setComments(commentsSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -51,52 +58,37 @@ export default function AdminDashboard() {
       const result = await signInWithPopup(auth, provider);
       if (result.user.email !== 'kcaarun10@gmail.com') {
         await signOut(auth);
-        alert("Access Denied: You are not authorized to access this dashboard.");
+        alert("Access Denied");
         return;
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to login with Google");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this post?")) {
+    if (confirm("Delete this post?")) {
       await deleteDoc(doc(db, 'posts', id));
-      fetchPosts();
-    }
-  };
-
-  const handleDeleteComment = async (id: string) => {
-    if (confirm("Delete this comment permanently?")) {
-      try {
-        await deleteDoc(doc(db, 'comments', id));
-        fetchComments();
-      } catch (err: any) {
-        console.error(err);
-        alert(`Failed to delete comment! Firebase Error: ${err.message}. Please make sure your Firebase Rules are updated in your dashboard and match what was provided.`);
-      }
+      fetchData();
     }
   };
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="glass p-10 rounded-2xl w-full max-w-md flex flex-col space-y-6 items-center text-center">
-          {!auth && <div className="bg-red-500/20 text-red-500 p-3 rounded text-sm w-full">Firebase is not configured. Please add .env.local variables!</div>}
-
-          <div>
-            <h1 className="text-3xl font-extrabold text-[#00f0ff] tracking-tight">Admin Portal</h1>
-            <p className="text-gray-400 mt-2 text-sm">Sign in to manage your content</p>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="glass p-12 rounded-[40px] w-full max-w-md text-center space-y-8 border border-white/10 shadow-2xl">
+          <div className="w-20 h-20 bg-[#00f0ff]/10 rounded-3xl flex items-center justify-center mx-auto text-[#00f0ff] animate-pulse">
+             <FaFileAlt size={40} />
           </div>
-
+          <div>
+            <h1 className="text-4xl font-black text-white tracking-tighter">ArunTech Admin</h1>
+            <p className="text-gray-500 mt-2 font-medium">Authentication Required</p>
+          </div>
           <button
-            type="button"
             onClick={handleGoogleLogin}
-            disabled={!auth}
-            className="w-full bg-white text-black font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+            className="w-full bg-white text-black font-black py-4 px-6 rounded-2xl hover:bg-gray-100 transition-all flex items-center justify-center space-x-3 shadow-xl"
           >
-            <FcGoogle className="text-2xl" />
+            <FcGoogle size={24} />
             <span>Continue with Google</span>
           </button>
         </div>
@@ -104,110 +96,125 @@ export default function AdminDashboard() {
     );
   }
 
-  // Total Views Calculation (Mocked via Likes or placeholder if no views field exists)
-  const totalViews = posts.reduce((acc, curr) => acc + (curr.readTime ? parseInt(curr.readTime) * 10 : 50), 0);
+  // Stats Logic
+  const publishedPosts = posts.filter(p => p.published).length;
+  const draftPosts = posts.filter(p => !p.published).length;
+  const totalCategories = Array.from(new Set(posts.map(p => p.category))).length;
+  const totalViews = posts.reduce((acc, curr) => acc + (curr.viewCount || 0), 0);
+
+  const filteredPosts = posts.filter(p => 
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="fixed inset-0 z-[60] flex bg-black overflow-y-auto w-full h-[100dvh]">
-      {/* Sidebar hidden on mobile, full height on desktop */}
+    <div className="fixed inset-0 z-[60] flex bg-[#050505] overflow-hidden w-full h-[100dvh]">
       <AdminSidebar />
-
-      <div className="flex-1 md:ml-64 p-8 pt-24 md:pt-8 bg-[#0a0a0a] min-h-full">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-extrabold text-white">Dashboard Overview</h1>
-            <p className="text-gray-400 mt-2">Welcome back to the ArunTech administration panel.</p>
-          </div>
-          <Link href="/admin/create" className="bg-[#00f0ff] text-black px-6 py-3 font-bold rounded-lg hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">
-            + Quick Post
-          </Link>
+      
+      <div className="flex-1 md:ml-64 flex flex-col h-full bg-[#0a0a0a] overflow-y-auto custom-scrollbar">
+        {/* Header */}
+        <div className="sticky top-0 z-20 px-8 py-6 border-b border-white/10 bg-black/40 backdrop-blur-md flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">Dashboard Overview</h1>
+              <p className="text-gray-500 text-sm font-medium">Insight into your digital footprint.</p>
+            </div>
+            <Link href="/admin/create" className="bg-[#00f0ff] text-black px-6 py-3 font-black rounded-2xl hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all flex items-center gap-2 text-sm">
+              <FaPlus /> New Article
+            </Link>
         </div>
 
-        {/* Dashboard Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="glass p-6 rounded-xl border-l-4 border-[#00f0ff]">
-            <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Total Published Posts</h3>
-            <p className="text-5xl font-bold text-white mt-2">{posts.length}</p>
+        <div className="p-8 space-y-12">
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <StatCard icon={<FaFileAlt />} label="Total Posts" value={posts.length} color="text-[#00f0ff]" />
+            <StatCard icon={<FaFileAlt className="opacity-50" />} label="Published" value={publishedPosts} color="text-green-500" />
+            <StatCard icon={<FaFileAlt className="opacity-50" />} label="Drafts" value={draftPosts} color="text-yellow-500" />
+            <StatCard icon={<FaComment />} label="Comments" value={comments.length} color="text-purple-500" />
+            <StatCard icon={<FaFolder />} label="Categories" value={totalCategories} color="text-blue-500" />
           </div>
-          <div className="glass p-6 rounded-xl border-l-4 border-blue-500">
-            <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Estimated Total Views</h3>
-            <p className="text-5xl font-bold text-white mt-2">{totalViews.toLocaleString()}</p>
-          </div>
-          <div className="glass p-6 rounded-xl border-l-4 border-purple-500">
-            <h3 className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Active Comments</h3>
-            <p className="text-5xl font-bold text-white mt-2">{comments.length}</p>
-          </div>
-        </div>
 
-        <h2 className="text-2xl font-bold text-white mb-6 border-b border-gray-800 pb-4">Manage Recent Content</h2>
-        <div className="glass rounded-xl overflow-hidden shadow-2xl border border-white/5">
-          <table className="w-full text-left">
-            <thead className="bg-[#00f0ff]/10">
-              <tr>
-                <th className="p-4 font-semibold text-[#00f0ff]">Article Title</th>
-                <th className="p-4 font-semibold text-[#00f0ff]">Category</th>
-                <th className="p-4 font-semibold text-[#00f0ff]">Published Date</th>
-                <th className="p-4 font-semibold text-[#00f0ff] text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map(post => (
-                <tr key={post.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="p-4 font-medium text-gray-200">{post.title}</td>
-                  <td className="p-4"><span className="text-xs font-bold uppercase tracking-wider bg-[#00f0ff]/10 border border-[#00f0ff]/20 px-3 py-1 rounded-full text-[#00f0ff]">{post.category}</span></td>
-                  <td className="p-4 text-gray-400">{new Date(post.createdAt).toLocaleDateString()}</td>
-                  <td className="p-4 text-right space-x-4">
-                    <Link href={`/admin/edit/${post.id}`} className="text-[#00f0ff] hover:text-white transition-colors font-medium">Edit</Link>
-                    <button onClick={() => handleDelete(post.id as string)} className="text-red-500 hover:text-white transition-colors font-medium">Delete</button>
-                  </td>
-                </tr>
-              ))}
-              {posts.length === 0 && (
-                <tr><td colSpan={4} className="p-8 text-center text-gray-400">No posts published yet. Time to start writing!</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+          {/* Activity Section */}
+          <div className="grid grid-cols-1 gap-10">
+            <section className="space-y-6">
+               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                     <span className="w-1.5 h-6 bg-[#00f0ff] rounded-full"></span>
+                     Recent Articles
+                  </h2>
+                  <div className="relative w-full md:w-80">
+                     <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                     <input 
+                       type="text" 
+                       placeholder="Search articles or categories..." 
+                       value={searchTerm}
+                       onChange={e => setSearchTerm(e.target.value)}
+                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-gray-300 focus:outline-none focus:border-[#00f0ff] transition-all"
+                     />
+                  </div>
+               </div>
 
-        {/* Community Moderation Section */}
-        <h2 className="text-2xl font-bold text-white mb-6 mt-16 border-b border-gray-800 pb-4">Community Moderation</h2>
-        <div className="glass rounded-xl overflow-hidden shadow-2xl border border-white/5 mb-20">
-          <table className="w-full text-left">
-            <thead className="bg-[#00f0ff]/10">
-              <tr>
-                <th className="p-4 font-semibold text-[#00f0ff] w-1/4">User</th>
-                <th className="p-4 font-semibold text-[#00f0ff] w-1/2">Comment Text</th>
-                <th className="p-4 font-semibold text-[#00f0ff]">Date</th>
-                <th className="p-4 font-semibold text-[#00f0ff] text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comments.map(comment => {
-                const relatedPost = posts.find((p: any) => p.id === comment.postId);
-                const postUrl = relatedPost ? `/blog/${relatedPost.slug}` : '#';
-                return (
-                  <tr key={comment.id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4">
-                      <div className="font-medium text-gray-200">{comment.authorName}</div>
-                      <Link href={postUrl} className="text-xs text-[#00f0ff] opacity-70 hover:opacity-100">{relatedPost ? 'View Post ↑' : '(Deleted Post)'}</Link>
-                    </td>
-                    <td className="p-4 text-gray-300 text-sm">
-                      {comment.text.length > 80 ? comment.text.substring(0, 80) + '...' : comment.text}
-                    </td>
-                    <td className="p-4 text-gray-400 text-sm">{new Date(comment.createdAt).toLocaleDateString()}</td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => handleDeleteComment(comment.id)} className="text-red-500 hover:text-white transition-colors font-medium">Delete</button>
-                    </td>
-                  </tr>
-                );
-              })}
-              {comments.length === 0 && (
-                <tr><td colSpan={4} className="p-8 text-center text-gray-400">No comments yet. Your community is quiet!</td></tr>
-              )}
-            </tbody>
-          </table>
+               <div className="glass rounded-[32px] overflow-hidden border border-white/5 shadow-2xl">
+                 <table className="w-full text-left">
+                   <thead className="bg-white/[0.02] border-b border-white/10">
+                     <tr>
+                       <th className="p-6 font-bold text-gray-400 text-xs uppercase tracking-widest">Article Details</th>
+                       <th className="p-6 font-bold text-gray-400 text-xs uppercase tracking-widest">Category</th>
+                       <th className="p-6 font-bold text-gray-400 text-xs uppercase tracking-widest">Status</th>
+                       <th className="p-6 font-bold text-gray-400 text-xs uppercase tracking-widest">Engagement</th>
+                       <th className="p-6 font-bold text-gray-400 text-xs uppercase tracking-widest text-right">Actions</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-white/5">
+                     {filteredPosts.map(post => (
+                       <tr key={post.id} className="group hover:bg-white/[0.02] transition-colors">
+                         <td className="p-6">
+                           <div className="font-bold text-white mb-1 group-hover:text-[#00f0ff] transition-colors">{post.title}</div>
+                           <div className="text-[10px] text-gray-500 font-mono uppercase tracking-tight">{new Date(post.createdAt).toLocaleDateString()}</div>
+                         </td>
+                         <td className="p-6">
+                           <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase text-gray-400">
+                             {post.category}
+                           </span>
+                         </td>
+                         <td className="p-6">
+                           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${post.published ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
+                             {post.published ? 'Published' : 'Draft'}
+                           </span>
+                         </td>
+                         <td className="p-6">
+                           <div className="flex items-center gap-2 text-gray-400">
+                              <FaEye size={12} className="text-[#00f0ff]" />
+                              <span className="text-xs font-bold font-mono">{post.viewCount || 0}</span>
+                           </div>
+                         </td>
+                         <td className="p-6 text-right">
+                           <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <Link href={`/blog/${post.slug}`} target="_blank" className="p-2 bg-white/5 rounded-lg text-gray-400 hover:text-white transition-all"><FaEye size={14}/></Link>
+                             <Link href={`/admin/edit/${post.id}`} className="p-2 bg-white/5 rounded-lg text-[#00f0ff] hover:bg-[#00f0ff]/10 transition-all"><FaEdit size={14}/></Link>
+                             <button onClick={() => handleDelete(post.id!)} className="p-2 bg-white/5 rounded-lg text-red-500 hover:bg-red-500/10 transition-all"><FaEdit size={14}/></button>
+                           </div>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+            </section>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, color }: { icon: any, label: string, value: number, color: string }) {
+  return (
+    <div className="glass p-6 rounded-3xl border border-white/10 hover:border-[#00f0ff]/30 transition-all group">
+      <div className={`w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center mb-4 ${color} group-hover:scale-110 transition-transform`}>
+        {icon}
+      </div>
+      <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{label}</p>
+      <p className="text-3xl font-black text-white">{value}</p>
     </div>
   );
 }

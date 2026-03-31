@@ -97,7 +97,7 @@ export default function AdUnit({ slot = '', format = 'auto', className = '', sty
       <ins
         className="adsbygoogle"
         style={style || { display: 'block' }}
-        data-ad-client="ca-pub-AIzaSyAh22GQ9-e4qgOY9CSG4gSApEBmL3e8kaE"
+        data-ad-client="ca-pub-YOUR_PUBLISHER_ID"
         data-ad-slot={slot}
         data-ad-format={format === 'Banner' ? 'rectangle' : (format === 'Native Banner' ? 'fluid' : format)}
         data-full-width-responsive="true"

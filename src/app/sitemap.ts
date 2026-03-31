@@ -6,17 +6,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const URL = 'https://arunregmi.com.np';
   
   // Base routes
-  const routes = [
-    { url: `${URL}`, lastModified: new Date() },
-    { url: `${URL}/blog`, lastModified: new Date() },
-    { url: `${URL}/tools`, lastModified: new Date() },
-    { url: `${URL}/about`, lastModified: new Date() },
-    { url: `${URL}/contact`, lastModified: new Date() },
-    { url: `${URL}/privacy-policy`, lastModified: new Date() },
-    { url: `${URL}/categories/mobile`, lastModified: new Date() },
-    { url: `${URL}/categories/ai`, lastModified: new Date() },
-    { url: `${URL}/categories/web-dev`, lastModified: new Date() },
-    { url: `${URL}/categories/gadgets`, lastModified: new Date() },
+  const routes: MetadataRoute.Sitemap = [
+    { url: `${URL}`, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
+    { url: `${URL}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${URL}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
   ];
 
   // Dynamic blog posts
@@ -24,15 +17,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc: any) => {
       const data = doc.data();
       routes.push({
         url: `${URL}/blog/${data.slug}`,
         lastModified: new Date(data.createdAt),
+        changeFrequency: 'weekly',
+        priority: 0.8,
       });
     });
   } catch (error) {
-    console.warn("Could not generate dynamic sitemap rules, likely running build without firebase config");
+    console.warn("Could not generate dynamic sitemap, check firebase config");
   }
 
   return routes;
