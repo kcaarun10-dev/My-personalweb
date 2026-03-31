@@ -72,21 +72,25 @@ export default function BlogFilters() {
         </svg>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => handleCategoryChange(category)}
-            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all border ${
-              activeCategory === category
-                ? 'bg-[#00f0ff] text-black border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.3)]'
-                : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/20 hover:text-white'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+      {/* Category Tabs - Mobile-friendly horizontal scroll */}
+      <div className="relative group">
+        <div className="flex overflow-x-auto pb-4 sm:pb-0 sm:flex-wrap items-center justify-start sm:justify-center gap-3 no-scrollbar snap-x px-4 sm:px-0">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryChange(category)}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border snap-start ${
+                activeCategory === category
+                  ? 'bg-[#00f0ff] text-black border-[#00f0ff] shadow-[0_0_20px_rgba(0,240,255,0.3)]'
+                  : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/20 hover:text-white'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        {/* Subtle fade indicator for mobile scroll */}
+        <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-black to-transparent pointer-events-none md:hidden" />
       </div>
     </div>
   );
