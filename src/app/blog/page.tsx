@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { db } from '@/lib/firebase';
-import { collection, query, orderBy, limit, getDocs, where, QueryDocumentSnapshot } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit, QueryDocumentSnapshot, QueryConstraint } from 'firebase/firestore';
 import PostCard from '@/components/PostCard';
 import AdUnit from '@/components/AdUnit';
 import { Post } from '@/types';
@@ -28,7 +28,7 @@ async function getPosts(searchParams: BlogSearchParams) {
   let q;
 
   // Basic query properties
-  const queryConstraints = [orderBy('createdAt', 'desc'), limit(100)];
+  const queryConstraints: QueryConstraint[] = [orderBy('createdAt', 'desc'), limit(100)];
 
   // Apply category filter if present
   if (searchParams.category && searchParams.category !== 'All') {
